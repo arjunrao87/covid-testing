@@ -1,1 +1,1 @@
-# Airtable dataset generator
+# covid.test

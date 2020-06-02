@@ -4,16 +4,14 @@ import csv
 import os
 import codecs
 import time
-from algoliasearch.search_client import SearchClient
-from airtable import Airtable
 from tinydb import TinyDB, Query
 
 db = TinyDB('covid.json')
-table = db.table('testing_stats')
-client = SearchClient.create(os.getenv('ALGOLIA_APP_ID'), os.getenv('ALGOLIA_WRITE_API_KEY'))
-index = client.init_index('covid_test')
-airtable = Airtable(os.getenv('AIRTABLE_BASE'), os.getenv('AIRTABLE_TABLE'))
 url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/testing/covid-testing-all-observations.csv"
+table_1="testing_stats_1"
+table_2="testing_stats_2"
+primary_table=None
+secondary_table=None
 
 def write_covid_testing_observations():
     with closing(requests.get(url, stream=True)) as r:
@@ -52,17 +50,41 @@ def write_covid_testing_observations():
                 'seven_day_smoothed_daily_change_per_thousand': seven_day_smoothed_daily_change_per_thousand,
             }
             payloads.append(payload)
-            # upsert_record(payload)
         end = time.time()
-        table.insert_multiple(payloads)
-        print("Inserted record")
-        print("Number of records = = " + str(len(table.all())))
-        index.save_objects(payloads, {'autoGenerateObjectIDIfNotExist': True})
-        return "Done = " + str(end-start)
+        response = write_to_tinydb(payloads)
+        return "Wrote " + str(response["count"]) + " into table=" + response["table"] + " in " + str(end-start) + " seconds."
 
-def upsert_record(payload:str):
-    record=airtable.match('id', payload['id'])
-    if not record:
-        airtable.insert(payload)
+def write_to_tinydb(payloads):
+    global primary_table
+    global secondary_table
+    get_table_names()
+    print("Before writing records :: Primary table = " + primary_table + ", Secondary table = "+ secondary_table)
+    print("Creating new table => "+ secondary_table)
+    table = db.table(secondary_table)
+    table.insert_multiple(payloads)
+    print("Inserted " + str(len(payloads)) + " records into " + secondary_table)
+    db.drop_table(primary_table)
+    print("Dropped older table =>"+ primary_table)
+    temp_table = secondary_table
+    secondary_table = primary_table
+    primary_table = temp_table
+    print("After writing records :: Primary table = " + primary_table + ", Secondary table = "+ secondary_table)
+    return {
+        "table": primary_table,
+        "count": len(table.all())
+    }
+
+def get_table_names():
+    global primary_table
+    global secondary_table
+    tables = db.tables()
+    print(">>>>>>>>>>>")
+    print(tables)
+    print(">>>>>>>>>>>")
+    response = {}
+    if table_2 in tables:
+        primary_table = table_2
+        secondary_table = table_1
     else:
-        airtable.update_by_field('id', payload['id'],payload)
+        primary_table = table_1
+        secondary_table = table_2

@@ -10,11 +10,11 @@ export default {
   name: 'App',
   data() {
     return {
-      planetChartData: planetChartData,
+      chartData: chartData,
     }
   },
   mounted() {
-    this.createChart('planet-chart', this.planetChartData);
+    this.createChart('planet-chart', this.chartData);
   },
   methods: {
     createChart(chartId, chartData) {
@@ -28,8 +28,7 @@ export default {
   }
 }
 import Chart from 'chart.js'
-import planetChartData from './chart-data.js';
-
+import chartData from './chart-data.js';
 </script>
 
 <style>

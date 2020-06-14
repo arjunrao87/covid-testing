@@ -1,6 +1,6 @@
 from tinydb import TinyDB, Query
 
-from server.db.driver import TinyDBDriver
+from app.db.driver import TinyDBDriver
 db = TinyDB('covid.json')
 driver = TinyDBDriver()
 table = db.table("testing_stats_1")

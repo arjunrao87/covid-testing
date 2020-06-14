@@ -74,7 +74,7 @@ export default {
   }
 }
 import Chart from 'chart.js'
-import observations from './data/observations.js';
+import observations from './observations.js';
 import axios from 'axios';
 </script>
 

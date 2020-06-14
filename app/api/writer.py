@@ -1,6 +1,6 @@
 import requests
 from contextlib import closing
-from server.db.driver import TinyDBDriver
+from app.db.driver import TinyDBDriver
 import csv
 import os
 import codecs

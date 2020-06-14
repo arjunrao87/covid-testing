@@ -1,15 +1,25 @@
 import os 
 
-from flask import Flask, request
-from server.writer import write_covid_testing_observations
-from server.reader import TestingReader
+from flask import Flask, request, current_app, send_file
+from app.api.writer import write_covid_testing_observations
+from app.api.reader import TestingReader
+from .api import api_bp
+from .client import client_bp
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../dist/static')
+app.register_blueprint(api_bp)
+app.register_blueprint(client_bp)
+
 reader = TestingReader()
 
+from .config import Config
+app.logger.info('>>> {}'.format(Config.FLASK_ENV))
+
 @app.route('/')
-def home():
-    return "Ready to process requests..."
+def index_client():
+    dist_dir = current_app.config['DIST_DIR']
+    entry = os.path.join(dist_dir, 'index.html')
+    return send_file(entry)
 
 @app.route('/testing/write', methods = ['POST'])
 def write():

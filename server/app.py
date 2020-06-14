@@ -9,11 +9,17 @@ reader = TestingReader()
 
 @app.route('/')
 def home():
-    return "Hello, World!"
+    return "Ready to process requests..."
 
-@app.route('/testing/write')
+@app.route('/testing/write', methods = ['POST'])
 def write():
-    return write_covid_testing_observations()
+    secret = request.args['secret'] if 'secret' in request.args else None
+    try:
+        if secret == os.getenv('COVID_WRITE_SECRET'):
+            return write_covid_testing_observations()
+    except Exception as e:
+        return "Error encountered: " + str(e)
+    return "Open sesame"
 
 @app.route('/testing/countries')
 def get_country_names():

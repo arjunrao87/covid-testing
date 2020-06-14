@@ -1,15 +1,52 @@
 <template>
   <div id="app">
-    <select class="form-control" @change="renderChartForCountry($event)">
-      <option value="" selected disabled>Choose</option>
-      <option v-for="country in countries" :key="country">{{ country }}</option>
-    </select>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">covid.test</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto">
+          <select class="form-control" @change="renderChartForCountry($event)">
+            <option value="" selected disabled>Choose country</option>
+            <option v-for="country in countries" :key="country">{{ country }}</option>
+          </select>
+        </div>
+        <div class="topnav-right">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" data-toggle="modal" data-target="#creditsModal">Credits <span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+          <div class="modal fade" id="creditsModal" tabindex="-1" role="dialog" aria-labelledby="creditsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="creditsModalLabel">Credits</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <ul>
+                    <li>Data made available by <a href="https://ourworldindata.org/coronavirus-testing">Our World in Data</a></li>
+                    <br/>
+                    <li></li>
+                    <li>Presented by <a href="https://www.arjunrao.co">Arjun</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
     <canvas id="covid-testing-chart"></canvas>
   </div>
 </template>
 
 <script>
-
+const serverURL = process.env.SERVER_URL || "http://127.0.0.1:5000"
 export default {
   name: 'App',
   data() {
@@ -17,38 +54,15 @@ export default {
         countries: this.getCountries()
       };
   },
-  mounted() {
-    this.createChart('covid-testing-chart');
-  },
   methods: {
     getCountries(){
-      console.log( "***********")
-      axios.get('http://127.0.0.1:5000/testing/countries').then(res => {
-        console.log( ">>>>>>>>>>>>")
-        console.log(res['data'])
-        this.countries = res['data'].split(',')
+      axios.get(serverURL + '/testing/countries').then(res => {
+        this.countries = Object.keys(res['data'])
       })
     },
     renderChartForCountry(event){
-      const country = event.target.value.replace(/'/g,'');
-      console.log("Coun" + country)
-
-      axios.get('http://127.0.0.1:5000/testing/observations_for_country?country='+country).then(res => {
-        console.log(res)
-        const chartId = 'covid-testing-chart'
-        const ctx = document.getElementById(chartId);
-        const results = observations(res)
-        new Chart(ctx, {
-          type: results.type,
-          data: results.data,
-          options: results.options,
-        });
-      })
-    },
-    createChart(chartId) {
-      axios.get('http://127.0.0.1:5000/testing/observations_for_country?country=India').then(res => {
-        console.log(res)
-        const ctx = document.getElementById(chartId);
+      axios.get(serverURL + '/testing/observations_for_country?country=' + event.target.value).then(res => {
+        const ctx = document.getElementById('covid-testing-chart');
         const results = observations(res)
         new Chart(ctx, {
           type: results.type,
@@ -74,9 +88,7 @@ import axios from 'axios';
   margin-top: 60px;
   margin: 0 auto;
 }
-/* .canvas{
-  position: relative; 
-  height:80vh; 
-  width:85vw
-} */
+ul {
+  list-style-type: none;
+}
 </style>

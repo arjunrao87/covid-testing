@@ -9,11 +9,12 @@ class TestingReader:
     def __init__(self):
         self.driver = TinyDBDriver()
 
-    def get_country_names(self):
+    def get_country_names(self) -> str:
         countries = set()
         for record in table.all():
             countries.add(record['country_long_name'])
-        return str(sorted(countries))
+        res = dict.fromkeys(sorted(countries), 0)
+        return res
 
     def get_observations_for_country(self,country:str='Australia') -> str:
         print(driver.get_primary_table())

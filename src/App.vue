@@ -46,7 +46,7 @@
 </template>
 
 <script>
-const serverURL = process.env.SERVER_URL || "http://127.0.0.1:5000"
+const serverURL = process.env.SERVER_URL || "https://covid-testing-app.herokuapp.com"
 export default {
   name: 'App',
   data() {

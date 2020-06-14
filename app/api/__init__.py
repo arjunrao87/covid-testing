@@ -1,5 +1,3 @@
-""" API Blueprint Application """
-
 from flask import Blueprint, current_app
 from flask_restplus import Api
 
@@ -11,6 +9,3 @@ api_rest = Api(api_bp)
 def add_header(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     return response
-
-# # Import resources to ensure view is registered
-# from .resources import * # NOQA

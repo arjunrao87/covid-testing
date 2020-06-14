@@ -1,10 +1,13 @@
-import requests
-from contextlib import closing
-from app.db.driver import TinyDBDriver
 import csv
 import os
 import codecs
 import time
+import requests
+
+from contextlib import closing
+from tinydb import Query
+from app.db.driver import TinyDBDriver
+
 
 url = "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/testing/covid-testing-all-observations.csv"
 driver = TinyDBDriver()
@@ -49,3 +52,34 @@ def write_covid_testing_observations():
         end = time.time()
         response = driver.write_to_tinydb(payloads)
         return "Wrote " + str(response["count"]) + " into table=" + response["table"] + " in " + str(end-start) + " seconds."
+
+def get_country_names() -> str:
+    table = driver.get_db().table(driver.get_primary_table())
+    countries = set()
+    for record in table.all():
+        countries.add(record['country_long_name'])
+    res = dict.fromkeys(sorted(countries), 0)
+    return res
+
+def get_observations_for_country(country:str='Australia') -> str:
+    table = driver.get_db().table(driver.get_primary_table())
+    Observations = Query()
+    rows = table.search(Observations.country_long_name == country)
+    data = {
+        "row_date": [],
+        "cumulative_total": [],
+        "daily_change_cumulative_total": [],
+        "cumulative_total_per_thousand": [],
+        "daily_change_in_cumulative_total_per_thousand": [],
+        "seven_day_smoothed_daily_change": [],
+        "seven_day_smoothed_daily_change_per_thousand": [],
+    }
+    for row in rows:
+        data["row_date"].append(row["row_date"])
+        data["cumulative_total"].append(row["cumulative_total"])
+        data["daily_change_cumulative_total"].append(row["daily_change_cumulative_total"])
+        data["cumulative_total_per_thousand"].append(row["cumulative_total_per_thousand"])
+        data["daily_change_in_cumulative_total_per_thousand"].append(row["daily_change_in_cumulative_total_per_thousand"])
+        data["seven_day_smoothed_daily_change"].append(row["seven_day_smoothed_daily_change"])
+        data["seven_day_smoothed_daily_change_per_thousand"].append(row["seven_day_smoothed_daily_change_per_thousand"])
+    return data

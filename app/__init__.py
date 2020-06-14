@@ -1,16 +1,13 @@
 import os 
 
 from flask import Flask, request, current_app, send_file
-from app.api.writer import write_covid_testing_observations
-from app.api.reader import TestingReader
+from app.api.actions import write_covid_testing_observations,get_observations_for_country,get_country_names
 from .api import api_bp
 from .client import client_bp
 
 app = Flask(__name__, static_folder='../dist/static')
 app.register_blueprint(api_bp)
 app.register_blueprint(client_bp)
-
-reader = TestingReader()
 
 from .config import Config
 app.logger.info('>>> {}'.format(Config.FLASK_ENV))
@@ -32,12 +29,12 @@ def write():
     return "Open sesame"
 
 @app.route('/testing/countries')
-def get_country_names():
-    return reader.get_country_names()
+def get_countries():
+    return get_country_names()
 
 @app.route('/testing/observations_for_country')
 def read_observations_for_country():
     country = request.args.get("country")
-    return reader.get_observations_for_country(country)
+    return get_observations_for_country(country)
 
 

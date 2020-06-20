@@ -20,7 +20,11 @@ def index_client():
 
 @app.route('/testing/write', methods = ['POST'])
 def write():
-    secret = request.args['secret'] if 'secret' in request.args else None
+    secret = None
+    if 'secret' in request.args:
+        secret = request.args['secret']
+    if 'secret' in request.headers:
+        secret = request.headers['secret']
     try:
         if secret == os.getenv('COVID_WRITE_SECRET'):
             return write_covid_testing_observations()

@@ -56,8 +56,12 @@ export default {
   },
   methods: {
     getCountries(){
+      console.log("(ASYNC) Retrieving list of countries from server...")
       axios.get(serverURL + '/testing/countries').then(res => {
+        console.log(res);
         this.countries = Object.keys(res['data'])
+        console.log("Retrieved countries = ");
+        console.log(this.countries);
       })
     },
     renderChartForCountry(event){

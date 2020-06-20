@@ -59,7 +59,6 @@ export default {
       console.log("(ASYNC) Retrieving list of countries from server...")
       axios.get(serverURL + '/testing/countries').then(res => {
         this.countries = Object.keys(res['data'])
-        console.log("Retrieved countries = ");
         console.log(this.countries);
       });
       axios.get(serverURL + '/testing/metrics').then(res => {

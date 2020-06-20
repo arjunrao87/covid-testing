@@ -6,11 +6,36 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <div class="navbar-nav mr-auto">
-          <select class="form-control" @change="renderChartForCountry($event)">
-            <option value="" selected disabled>Choose a country</option>
-            <option v-for="country in countries" :key="country">{{ country }}</option>
-          </select>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" data-toggle="modal" data-target="#exploreModal">Explore <span class="sr-only">(current)</span></a>
+          </li>
+        </ul>
+        <div class="modal fade" id="exploreModal" tabindex="-1" role="dialog" aria-labelledby="creditsModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exploreModalLabel">Explore Covid Testing</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <select class="form-control" @change="renderChartForCountry($event)">
+                  <option value="" selected disabled>Choose a country</option>
+                  <option v-for="country in countries" :key="country">{{ country }}</option>
+                </select>
+                <select class="form-control selectpicker" style='' styleBase='form-control' multiple>
+                  <option value="" selected disabled>Choose metrics to watch</option>
+                  <option v-for="metric in metrics" :key="metric">{{ metric['name'] }}</option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="topnav-right">
           <ul class="navbar-nav mr-auto">
@@ -52,6 +77,7 @@ export default {
   data() {
       return {
         countries: this.getCountries(),
+        metrics: this.metrics,
       };
   },
   methods: {
@@ -62,8 +88,8 @@ export default {
         console.log(this.countries);
       });
       axios.get(serverURL + '/testing/metrics').then(res => {
-        console.log(res);
         this.metrics = res['data']['values']
+        console.log(this.metrics);
       });
     },
     renderChartForCountry(event){

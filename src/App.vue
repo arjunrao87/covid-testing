@@ -8,7 +8,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <div class="navbar-nav mr-auto">
           <select class="form-control" @change="renderChartForCountry($event)">
-            <option value="" selected disabled>Choose country</option>
+            <option value="" selected disabled>Choose a country</option>
             <option v-for="country in countries" :key="country">{{ country }}</option>
           </select>
         </div>
@@ -51,23 +51,27 @@ export default {
   name: 'App',
   data() {
       return {
-        countries: this.getCountries()
+        countries: this.getCountries(),
       };
   },
   methods: {
     getCountries(){
       console.log("(ASYNC) Retrieving list of countries from server...")
       axios.get(serverURL + '/testing/countries').then(res => {
-        console.log(res);
         this.countries = Object.keys(res['data'])
-        console.log("Retrieved countries = ");
         console.log(this.countries);
-      })
+      });
+      axios.get(serverURL + '/testing/metrics').then(res => {
+        console.log(res);
+        this.metrics = res['data']['values']
+      });
     },
     renderChartForCountry(event){
+      var that = this
+      console.log(event)
       axios.get(serverURL + '/testing/observations_for_country?country=' + event.target.value).then(res => {
         const ctx = document.getElementById('covid-testing-chart');
-        const results = observations(res)
+        const results = observations(res, that.metrics)
         new Chart(ctx, {
           type: results.type,
           data: results.data,

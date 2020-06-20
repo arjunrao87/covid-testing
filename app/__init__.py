@@ -1,7 +1,7 @@
 import os 
 
 from flask import Flask, request, current_app, send_file
-from app.api.actions import write_covid_testing_observations,get_observations_for_country,get_country_names
+from app.api.actions import write_covid_testing_observations,get_observations_for_country,get_country_names, get_metrics_details
 from .api import api_bp
 from .client import client_bp
 
@@ -31,6 +31,10 @@ def write():
     except Exception as e:
         return "Error encountered: " + str(e)
     return "Open sesame"
+
+@app.route('/testing/metrics')
+def get_metrics():
+    return get_metrics_details()
 
 @app.route('/testing/countries')
 def get_countries():
